@@ -71,10 +71,9 @@ blockchain = Blockchain()
 @app.route('/mine', methods=['POST'])
 def mine():
         # Run the proof of work to get the next proof
-    # proof = blockchain(blockchain.last_block)
+    
     #     # Make the new block by adding it to the chain with the proof 
-    # previous_hash = blockchain.hash(blockchain.last_block)
-    # block = blockchain.new_block(proof, previous_hash)
+    # 
 
     # response ={
     #     'new_block': block
@@ -87,20 +86,30 @@ def mine():
     data = request.get_json()
 
     required = ['proof', 'id']
-    if not all(k in values for k in required):
+    if not all(k in data for k in required):
         response = {
             'message': 'Missing values'
         }
         return jsonify(response), 400
     submitted_proof = data['proof']
+
+    block_string = json.dumps(blockchain.last_block, sort_keys=True)
     #If proof = correct:
-    
+    if blockchain.valid_proof(block_string, submitted_proof):
+        previous_hash = blockchain.hash(blockchain.last_block)
+        block = blockchain.new_block(submitted_proof, previous_hash)
         #Accept POST
-        
+        response = {
+            'message': 'success'
+        }
         return jsonify(response), 200
      # If proof and id are not there
     else:
         #Return a 400 error with jsonify
+        response = {
+            'message': 'Proof invalid or late'
+        }
+        return jsonify(response), 201
         
 
 
