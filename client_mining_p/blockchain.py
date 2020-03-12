@@ -85,20 +85,23 @@ def mine():
     #Use data = request.get_json() to pull data from POST
             # Don't confuse request and requests
     data = request.get_json()
-    #If proof = correct:
-    if data['proof'] and data['id']:
-        #Accept POST
+
+    required = ['proof', 'id']
+    if not all(k in values for k in required):
         response = {
-            'accepted': data
+            'message': 'Missing values'
         }
+        return jsonify(response), 400
+    submitted_proof = data['proof']
+    #If proof = correct:
+    
+        #Accept POST
+        
         return jsonify(response), 200
      # If proof and id are not there
     else:
-        response = {
-            'message': 'Not today'
-        }
         #Return a 400 error with jsonify
-        return jsonify(response), 400
+        
 
 
 @app.route('/chain', methods=['GET'])
@@ -106,6 +109,13 @@ def full_chain():
     response = {
         'chain': blockchain.chain,
         'length': len(blockchain.chain)
+    }
+    return jsonify(response), 200
+
+@app.route('/last_block', methods=['GET'])
+def prev_block():
+    response= {
+        'last_block': blockchain.last_block
     }
     return jsonify(response), 200
     
